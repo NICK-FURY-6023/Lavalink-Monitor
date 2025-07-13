@@ -236,4 +236,185 @@ def get_load_indicator(load_avg, cpu_count):
     
     if load_percentage < 70:
         return EMOJIS['good']
-    elif
+    elif load_percentage < 90:
+        return EMOJIS['moderate']
+    else:
+        return EMOJIS['critical']
+
+def validate_config(config):
+    """
+    Validate configuration parameters
+    
+    Args:
+        config: Configuration dictionary
+        
+    Returns:
+        tuple: (is_valid, error_message)
+    """
+    required_fields = ['host', 'port', 'password']
+    
+    for field in required_fields:
+        if field not in config:
+            return False, f"Missing required field: {field}"
+    
+    # Validate port
+    try:
+        port = int(config['port'])
+        if port < 1 or port > 65535:
+            return False, "Port must be between 1 and 65535"
+    except ValueError:
+        return False, "Port must be a valid integer"
+    
+    # Validate host
+    if not config['host'] or config['host'].strip() == '':
+        return False, "Host cannot be empty"
+    
+    # Validate password
+    if not config['password'] or config['password'].strip() == '':
+        return False, "Password cannot be empty"
+    
+    return True, "Configuration is valid"
+
+def sanitize_node_name(name):
+    """
+    Sanitize node name for display
+    
+    Args:
+        name: Raw node name
+        
+    Returns:
+        str: Sanitized node name
+    """
+    # Remove common prefixes
+    prefixes = ['node-', 'lavalink-', 'server-']
+    for prefix in prefixes:
+        if name.lower().startswith(prefix):
+            name = name[len(prefix):]
+    
+    # Capitalize first letter of each word
+    name = ' '.join(word.capitalize() for word in name.split('-'))
+    name = ' '.join(word.capitalize() for word in name.split('_'))
+    
+    return name or "Unknown Node"
+
+def get_region_emoji(region_name):
+    """
+    Get emoji for region name
+    
+    Args:
+        region_name: Region name
+        
+    Returns:
+        str: Region with emoji
+    """
+    from config import REGION_EMOJIS
+    
+    if not region_name:
+        return f"{REGION_EMOJIS['unknown']} Unknown"
+    
+    region_lower = region_name.lower()
+    
+    # Check if emoji is already present
+    for emoji in REGION_EMOJIS.values():
+        if region_name.startswith(emoji):
+            return region_name
+    
+    # Find matching emoji
+    for region_key, emoji in REGION_EMOJIS.items():
+        if region_key in region_lower:
+            return f"{emoji} {region_name}"
+    
+    # Default to unknown
+    return f"{REGION_EMOJIS['unknown']} {region_name}"
+
+def create_progress_bar(percentage, length=10):
+    """
+    Create a text progress bar
+    
+    Args:
+        percentage: Progress percentage (0-100)
+        length: Length of progress bar
+        
+    Returns:
+        str: Progress bar string
+    """
+    if percentage < 0:
+        percentage = 0
+    elif percentage > 100:
+        percentage = 100
+    
+    filled_length = int(length * percentage // 100)
+    bar = '█' * filled_length + '░' * (length - filled_length)
+    return f"{bar} {percentage:.1f}%"
+
+def get_connection_status_emoji(is_connected, ping=None):
+    """
+    Get connection status emoji
+    
+    Args:
+        is_connected: Whether the connection is active
+        ping: Ping time in milliseconds
+        
+    Returns:
+        str: Connection status emoji
+    """
+    if not is_connected:
+        return EMOJIS['offline']
+    
+    if ping is None:
+        return EMOJIS['good']
+    
+    return get_health_emoji(ping, 'ping')
+
+def format_node_stats_summary(node_data):
+    """
+    Format node statistics for summary display
+    
+    Args:
+        node_data: Node statistics data
+        
+    Returns:
+        str: Formatted summary
+    """
+    if not node_data.get('online', False):
+        return f"❌ **Offline** - {node_data.get('error', 'Unknown error')}"
+    
+    stats = node_data['stats']
+    cpu_pct = stats['cpu'] * 100
+    ram_pct = stats['memory']['used'] / stats['memory']['allocated'] * 100
+    
+    return f"""
+{get_health_emoji(cpu_pct, 'cpu')} CPU: {cpu_pct:.1f}% | {get_health_emoji(ram_pct, 'ram')} RAM: {ram_pct:.1f}%
+🎵 Players: {stats['players']} | 🎶 Playing: {stats['playingPlayers']}
+📍 {node_data['region']} | 🏓 {node_data.get('ping', 'N/A')}ms
+""".strip()
+
+if __name__ == "__main__":
+    # Test utility functions
+    print("Testing utility functions...")
+    
+    # Test health emoji
+    print(f"CPU 25%: {get_health_emoji(25, 'cpu')}")
+    print(f"CPU 65%: {get_health_emoji(65, 'cpu')}")
+    print(f"CPU 85%: {get_health_emoji(85, 'cpu')}")
+    
+    # Test uptime formatting
+    print(f"Uptime 30s: {format_uptime(30)}")
+    print(f"Uptime 90s: {format_uptime(90)}")
+    print(f"Uptime 3700s: {format_uptime(3700)}")
+    print(f"Uptime 90000s: {format_uptime(90000)}")
+    
+    # Test bytes formatting
+    print(f"Bytes 500: {format_bytes(500)}")
+    print(f"Bytes 1500: {format_bytes(1500)}")
+    print(f"Bytes 1500000: {format_bytes(1500000)}")
+    print(f"Bytes 1500000000: {format_bytes(1500000000)}")
+    
+    # Test progress bar
+    print(f"Progress 0%: {create_progress_bar(0)}")
+    print(f"Progress 25%: {create_progress_bar(25)}")
+    print(f"Progress 50%: {create_progress_bar(50)}")
+    print(f"Progress 75%: {create_progress_bar(75)}")
+    print(f"Progress 100%: {create_progress_bar(100)}")
+    
+    print("✅ All utility functions working!")
