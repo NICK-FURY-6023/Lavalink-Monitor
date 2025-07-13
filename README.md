@@ -34,7 +34,7 @@ Monitor Lavalink & host system health, and post a single **live-refreshing embed
 
 ### 1. Download & Setup
 ```bash
-git clone https://github.com/your-username/lavalink-monitor-bot.git
+git clone https://github.com/NICK-FURY-6023/lavalink-monitor-bot.git
 cd lavalink-monitor-bot
 python setup.py
 ```
@@ -203,7 +203,7 @@ Updates every 10 seconds • Lavalink Monitor Bot
 
 ### Step 1: Clone Repository
 ```bash
-git clone https://github.com/your-username/lavalink-monitor-bot.git
+git clone https://github.com/NICK-FURY-6023/lavalink-monitor-bot.git
 cd lavalink-monitor-bot
 ```
 
@@ -334,7 +334,7 @@ python-dotenv>=1.0.0
 
 ### Development Setup
 ```bash
-git clone https://github.com/your-username/lavalink-monitor-bot.git
+git clone https://github.com/NICK-FURY-6023/lavalink-monitor-bot.git
 cd lavalink-monitor-bot
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
